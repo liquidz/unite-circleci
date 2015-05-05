@@ -25,14 +25,21 @@ if !exists('g:circleci#recent_build_limit')
   let g:circleci#recent_build_limit = 30
 endif
 
+function! s:call_api(path, param) abort
+  let url = 'https://circleci.com/api/v1' . a:path
+  let param = copy(a:param)
+  let param['circle-token'] = g:circleci#token
+
+  return s:Http.get(url, param, {'Accept': 'application/json' })
+endfunction
+
 ""
 " Return CircleCI's recent builds
 "
 function! circleci#get_recent_builds() abort
-  let resp = s:Http.get('https://circleci.com/api/v1/recent-builds',
-      \ {'circle-token' : g:circleci#token,
-      \  'limit': g:circleci#recent_build_limit},
-      \ {'Accept': 'application/json' })
+  let resp = s:call_api('/recent-builds', {
+      \ 'limit': g:circleci#recent_build_limit,
+      \ })
   return (resp.status !=# 200 ? [] : s:Json.decode(resp.content))
 endfunction
 
