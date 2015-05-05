@@ -3,7 +3,7 @@ set cpo&vim
 
 let s:source = {
     \ 'name'          : 'circleci',
-    \ 'default_action': 'open_browser',
+    \ 'default_action': 'show_details',
     \ 'syntax'        : 'uniteSource__CircleCI',
     \ 'hooks'         : {},
     \ 'action_table'  : {},
@@ -33,14 +33,12 @@ function! s:source.gather_candidates(args, context) abort " {{{
   let builds = circleci#get_recent_builds()
   return map(builds, '{
       \ "word": s:generate_word(v:val),
-      \ "build_url": v:val.build_url,
-      \ "username": v:val.username,
-      \ "number": v:val.build_num,
-      \ "project": v:val.reponame,
+      \ "build": v:val,
       \ }')
 endfunction " }}}
 
 function! s:source.hooks.on_syntax(args, context) abort " {{{
+  ":retried, :canceled, :infrastructure_fail, :timedout, :not_run, :running, :failed, :queued, :scheduled, :not_running, :no_tests, :fixed, :success
   syntax match uniteSource__CircleCI_Success_Status /\v\[success\]/
         \ contained containedin=uniteSource__CircleCI
   syntax match uniteSource__CircleCI_Failed_Status /\v\[failed\]/
@@ -71,8 +69,18 @@ let s:source.action_table.open_browser = {
       \ 'is_quit' : 0,
       \ }
 function! s:source.action_table.open_browser.func(candidate)
-  let url = a:candidate.build_url
+  let url = a:candidate.build.build_url
   call openbrowser#open(url)
+endfunction
+
+let s:source.action_table.show_details = {
+      \ 'description' : 'show build details',
+      \ }
+function! s:source.action_table.show_details.func(candidate)
+  let user = a:candidate.build.username
+  let repo = a:candidate.build.reponame
+  let num  = a:candidate.build.build_num
+  execute join(['Unite circleci/build', user, repo, num], ':')
 endfunction
 
 function! unite#sources#circleci#define() abort

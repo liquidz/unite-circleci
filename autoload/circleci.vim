@@ -25,6 +25,15 @@ if !exists('g:circleci#recent_build_limit')
   let g:circleci#recent_build_limit = 30
 endif
 
+if !exists('g:circleci#build_detail_keys')
+  let g:circleci#build_detail_keys = [
+      \ 'build_num', 'branch', 'vcs_revision', 'committer_name',
+      \ 'committer_email', 'subject', 'why', 'queued_at',
+      \ 'start_time', 'stop_time', 'build_time_millis',
+      \ 'username', 'lifecycle', 'status', 'retry_of',
+      \ ]
+endif
+
 function! s:call_api(path, param) abort
   let url = 'https://circleci.com/api/v1' . a:path
   let param = copy(a:param)
@@ -41,6 +50,15 @@ function! circleci#get_recent_builds() abort
       \ 'limit': g:circleci#recent_build_limit,
       \ })
   return (resp.status !=# 200 ? [] : s:Json.decode(resp.content))
+endfunction
+
+""
+" Return CircleCI's build details
+"
+function! circleci#get_build_details(username, project, build_num) abort
+  let path = '/' . join(['project', a:username, a:project, a:build_num], '/')
+  let resp = s:call_api(path, {})
+  return (resp.status !=# 200 ? {} : s:Json.decode(resp.content))
 endfunction
 
 let &cpo = s:save_cpo
