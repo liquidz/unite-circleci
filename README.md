@@ -1,6 +1,6 @@
 # unite-circleci
 
-Unite candidates for [CircleCI](https://circleci.com/).
+Unite source for [CircleCI](https://circleci.com/).
 
 ## Requirements
 

@@ -38,27 +38,25 @@ function! s:source.gather_candidates(args, context) abort " {{{
 endfunction " }}}
 
 function! s:source.hooks.on_syntax(args, context) abort " {{{
-  ":retried, :canceled, :infrastructure_fail, :timedout, :not_run, :running, :failed, :queued, :scheduled, :not_running, :no_tests, :fixed, :success
   syntax match uniteSource__CircleCI_Success_Status /\v\[success\]/
-        \ contained containedin=uniteSource__CircleCI
-  syntax match uniteSource__CircleCI_Failed_Status /\v\[failed\]/
-        \ contained containedin=uniteSource__CircleCI
+      \ contained containedin=uniteSource__CircleCI
+  syntax match uniteSource__CircleCI_Failed_Status
+      \ /\v\[(infrastructure_fail|failed|timeout)\]/
+      \ contained containedin=uniteSource__CircleCI
   syntax match uniteSource__CircleCI_Fixed_Status /\v\[fixed\]/
-        \ contained containedin=uniteSource__CircleCI
-  syntax match uniteSource__CircleCI_Canceled_Status /\v\[canceled\]/
-        \ contained containedin=uniteSource__CircleCI
-  syntax match uniteSource__CircleCI_NoTest_Status /\v\[no_tests\]/
-        \ contained containedin=uniteSource__CircleCI
+      \ contained containedin=uniteSource__CircleCI
+  syntax match uniteSource__CircleCI_Info_Status
+      \ /\v\[(retried|canceled|not_run|running|queued|scheduled|not_running|no_tests)\]/
+      \ contained containedin=uniteSource__CircleCI
   syntax match uniteSource__CircleCI_Number /\v#[0-9]+/
-        \ contained containedin=uniteSource__CircleCI
+      \ contained containedin=uniteSource__CircleCI
   syntax match uniteSource__CircleCI_Subject /\v\(.+\)/
-        \ contained containedin=uniteSource__CircleCI
+      \ contained containedin=uniteSource__CircleCI
 
   highlight default link uniteSource__CircleCI_Success_Status  Statement
   highlight default link uniteSource__CircleCI_Failed_Status   QFError
   highlight default link uniteSource__CircleCI_Fixed_Status    QFWarning
-  highlight default link uniteSource__CircleCI_Canceled_Status QFInfo
-  highlight default link uniteSource__CircleCI_NoTest_Status   QFInfo
+  highlight default link uniteSource__CircleCI_Info_Status     QFInfo
   highlight default link uniteSource__CircleCI_Number          Identifier
   highlight default link uniteSource__CircleCI_Subject         Comment
 endfunction " }}}
